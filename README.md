@@ -7,12 +7,11 @@
 ## 📝 Problem Statement
 
 Build a backend service to capture website analytics events that can:
+
 - ✅ Handle high volumes of incoming requests
 - ✅ Provide extremely fast response times (< 5ms)
 - ✅ **Not make clients wait** for database writes
 - ✅ Provide separate API for retrieving summarized analytics data
-
----
 
 ---
 
@@ -53,8 +52,6 @@ analytics-system/
 
 ---
 
----
-
 ## 📊 Database Schema
 
 ### MongoDB Collection: `events`
@@ -83,8 +80,6 @@ analytics-system/
 
 ---
 
----
-
 ## 📋 Prerequisites
 
 | Requirement | Version | Purpose |
@@ -95,24 +90,25 @@ analytics-system/
 
 ---
 
----
-
 ## 🚀 Quick Start Guide
 
 ### Step 1: Setup Redis
 
 #### Option A: Remote Redis Server ⭐ (Recommended)
+
 ```env
 REDIS_HOST=172.28.50.198
 REDIS_PORT=6379
 ```
 
 #### Option B: Local Redis (Windows)
+
 - **[Memurai](https://www.memurai.com/)** - Redis for Windows
 - **Docker**: `docker run -d -p 6379:6379 redis:latest`
 - **WSL2**: `sudo apt-get install redis-server && redis-server`
 
 #### Verify Connection
+
 ```powershell
 Test-NetConnection <REDIS_HOST> -Port 6379
 # Expected: TcpTestSucceeded: True ✅
@@ -133,6 +129,7 @@ Test-NetConnection <REDIS_HOST> -Port 6379
 ### Step 3: Configure Environment Variables
 
 #### 📁 ingestion-service/.env
+
 ```env
 PORT=3000
 # REDIS_HOST=localhost        # For local Redis
@@ -141,6 +138,7 @@ REDIS_PORT=6379
 ```
 
 #### 📁 processor/.env
+
 ```env
 # REDIS_HOST=localhost        # For local Redis
 REDIS_HOST=172.28.50.198      # For remote Redis
@@ -149,6 +147,7 @@ MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/analyti
 ```
 
 #### 📁 reporting-service/.env
+
 ```env
 PORT=4000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/analytics?retryWrites=true&w=majority
@@ -163,11 +162,13 @@ MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/analyti
 Open **3 separate PowerShell terminals**:
 
 #### Terminal 1️⃣ - Ingestion Service
+
 ```powershell
 cd analytics-system\ingestion-service
 npm install
 npm start
 ```
+
 **Expected Output**: 
 ```
 Ingestion Service running on port 3000 ✅
@@ -176,11 +177,13 @@ Ingestion Service running on port 3000 ✅
 ---
 
 #### Terminal 2️⃣ - Processor Worker
+
 ```powershell
 cd analytics-system\processor
 npm install
 npm start
 ```
+
 **Expected Output**:
 ```
 ✓ Connected to MongoDB Atlas
@@ -190,11 +193,13 @@ Processor Worker started - waiting for events... ✅
 ---
 
 #### Terminal 3️⃣ - Reporting Service
+
 ```powershell
 cd analytics-system\reporting-service
 npm install
 npm start
 ```
+
 **Expected Output**:
 ```
 ✓ Connected to MongoDB Atlas
@@ -205,13 +210,12 @@ Reporting Service running on port 4000 ✅
 
 ---
 
----
-
 ## 🧪 Testing the System
 
 ### Test 1: Send Events to Ingestion API
 
 #### Using PowerShell
+
 ```powershell
 # Send a single event
 Invoke-RestMethod -Uri "http://localhost:3000/event" `
@@ -227,6 +231,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/event" `
 ```
 
 #### Using curl
+
 ```bash
 curl -X POST http://localhost:3000/event \
   -H "Content-Type: application/json" \
@@ -240,6 +245,7 @@ curl -X POST http://localhost:3000/event \
 ```
 
 **✅ Expected Response (< 5ms)**:
+
 ```json
 {
   "status": "accepted"
@@ -269,16 +275,19 @@ Invoke-RestMethod -Uri "http://localhost:3000/event" -Method Post -ContentType "
 ### Test 3: Get Analytics Report
 
 #### Using PowerShell
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:4000/stats?site_id=site-abc-123&date=2025-11-15"
 ```
 
 #### Using curl
+
 ```bash
 curl "http://localhost:4000/stats?site_id=site-abc-123&date=2025-11-15"
 ```
 
 **✅ Expected Response**:
+
 ```json
 {
   "site_id": "site-abc-123",
@@ -304,8 +313,6 @@ Invoke-RestMethod -Uri "http://localhost:4000/stats/aggregated?site_id=site-abc-
 
 ---
 
----
-
 ## 📚 API Reference
 
 ### 🔹 Service 1: Ingestion API (Port 3000)
@@ -315,6 +322,7 @@ Invoke-RestMethod -Uri "http://localhost:4000/stats/aggregated?site_id=site-abc-
 Accept and queue analytics events for processing.
 
 **Request Body**:
+
 ```json
 {
   "site_id": "site-abc-123",           // ✅ Required
@@ -334,6 +342,7 @@ Accept and queue analytics events for processing.
 | `timestamp` | String | ✅ Yes | ISO 8601 timestamp |
 
 **✅ Success Response (200)**:
+
 ```json
 {
   "status": "accepted"
@@ -341,6 +350,7 @@ Accept and queue analytics events for processing.
 ```
 
 **❌ Error Response (400)**:
+
 ```json
 {
   "status": "error",
@@ -357,6 +367,7 @@ Accept and queue analytics events for processing.
 Check service status.
 
 **Response**:
+
 ```json
 {
   "status": "ok",
@@ -389,17 +400,20 @@ Check service status.
 Get aggregated analytics for a site and date.
 
 **Query Parameters**:
+
 | Parameter | Required | Format | Example |
 |-----------|----------|--------|---------|
 | `site_id` | ✅ Yes | String | `site-abc-123` |
 | `date` | ✅ Yes | YYYY-MM-DD | `2025-11-15` |
 
 **Example**:
+
 ```
 GET /stats?site_id=site-abc-123&date=2025-11-15
 ```
 
 **✅ Success Response (200)**:
+
 ```json
 {
   "site_id": "site-abc-123",
@@ -415,11 +429,13 @@ GET /stats?site_id=site-abc-123&date=2025-11-15
 ```
 
 **Response Fields**:
+
 - `total_views` - Total event count for site/date
 - `unique_users` - Distinct user_id count
 - `top_paths` - Top 10 paths by views (descending)
 
 **❌ Error Response (400)**:
+
 ```json
 {
   "status": "error",
@@ -444,14 +460,13 @@ MongoDB aggregation pipeline version (optimized for large datasets).
 Check service status and MongoDB connection.
 
 **Response**:
+
 ```json
 {
   "status": "ok",
   "service": "reporting-service"
 }
 ```
-
----
 
 ---
 
@@ -472,26 +487,11 @@ Check service status and MongoDB connection.
 ```
 
 ### Key Points
+
 - ✅ Ingestion is **non-blocking** - client never waits for database
 - ✅ Queue provides **decoupling** between ingestion and processing
 - ✅ Worker processes events **asynchronously** in background
 - ✅ Reporting API reads **pre-saved data** for fast queries
-
----
-     │                       │                                                                                  │
-     │              ┌──────────────────┐                                                                        │
-     └─────────────▶│ Reporting API    │◀───────────────────────────────────────────────────────────────────────┘
-         GET        │ (Port 4000)      │ Read & Aggregate
-         /stats     └──────────────────┘
-```
-
-**Key Points**:
-1. Ingestion is **non-blocking** - client never waits for database
-2. Queue provides **decoupling** between ingestion and processing
-3. Worker processes events **asynchronously** in background
-4. Reporting API reads **pre-saved data** for fast queries
-
----
 
 ---
 
@@ -500,11 +500,13 @@ Check service status and MongoDB connection.
 ### ❌ Redis Connection Error
 
 **Error Message**:
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:6379
 ```
 
 **Solutions**:
+
 1. ✅ Check if Redis is running
    ```powershell
    Test-NetConnection 172.28.50.198 -Port 6379
@@ -517,11 +519,13 @@ Error: connect ECONNREFUSED 127.0.0.1:6379
 ### ❌ MongoDB Connection Error
 
 **Error Message**:
+
 ```
 ✗ MongoDB connection error: MongoServerError: bad auth
 ```
 
 **Solutions**:
+
 | Issue | Fix |
 |-------|-----|
 | Wrong credentials | Verify username/password in `.env` |
@@ -536,6 +540,7 @@ Error: connect ECONNREFUSED 127.0.0.1:6379
 **Symptoms**: Events accepted but not in `/stats`
 
 **Checklist**:
+
 - [ ] All 3 services running?
 - [ ] Processor shows "Connected to MongoDB"?
 - [ ] Check processor terminal for errors
@@ -546,11 +551,13 @@ Error: connect ECONNREFUSED 127.0.0.1:6379
 ### ❌ Port Already in Use
 
 **Error Message**:
+
 ```
 Error: listen EADDRINUSE: address already in use :::3000
 ```
 
 **Solution**:
+
 ```powershell
 # Find process using port 3000
 netstat -ano | findstr :3000
@@ -560,10 +567,6 @@ taskkill /PID <PID> /F
 
 # Or change PORT in .env file
 ```
-
----
-
----
 
 ---
 
@@ -587,29 +590,34 @@ taskkill /PID <PID> /F
 ### Production Checklist
 
 #### 1️⃣ Environment Variables
+
 - ❌ Never commit `.env` files to Git
 - ✅ Use separate configs per environment
 - ✅ Rotate credentials regularly
 
 #### 2️⃣ API Security
+
 - ✅ Add rate limiting (`express-rate-limit`)
 - ✅ Implement API key authentication
 - ✅ Use HTTPS/TLS for all endpoints
 - ✅ Add request validation middleware
 
 #### 3️⃣ Database Security
+
 - ✅ Use specific IP whitelist (not `0.0.0.0/0`)
 - ✅ Enable encryption at rest
 - ✅ Use strong passwords (16+ chars)
 - ✅ Enable MongoDB audit logging
 
 #### 4️⃣ Redis Security
+
 - ✅ Enable authentication (`requirepass`)
 - ✅ Use Redis ACLs
 - ✅ Run in protected mode
 - ✅ Use SSL/TLS connections
 
 #### 5️⃣ Monitoring
+
 - ✅ Health checks for all services
 - ✅ Logging (Winston/Pino)
 - ✅ Alerts for failures
@@ -631,6 +639,7 @@ taskkill /PID <PID> /F
 ### Horizontal Scaling Strategy
 
 #### Scale Ingestion Service
+
 ```
        Load Balancer
             │
@@ -645,6 +654,7 @@ Instance 1  Instance 2  Instance 3
 ```
 
 #### Scale Processor Workers
+
 ```
     Redis Queue
          │
@@ -661,19 +671,20 @@ Worker 1  Worker 2  Worker 3
 ### Performance Optimizations
 
 ✅ **Implemented**:
+
 - MongoDB indexes on `site_id`, `user_id`, `timestamp`
 - Compound index: `{site_id: 1, timestamp: 1}`
 - Concurrent job processing (10 workers)
 - In-memory Redis queue
 
 🚀 **Future Enhancements**:
+
 - Add Redis caching for reporting queries
 - MongoDB read replicas for reporting
 - Database sharding for multi-tenant
 - CDN for static assets
 - Batch processing for high-volume periods
 
----
 ---
 
 ## 📁 Project Structure
@@ -741,45 +752,3 @@ Found a bug or have a feature request? Please open an issue on GitHub!
 ---
 
 **⭐ If this project helped you, please consider giving it a star!**
-│   ├── package.json           # Dependencies: bullmq, ioredis, mongoose
-│   ├── .env                   # Config: REDIS, MONGO_URI
-│   └── .env.example           # Template for environment variables
-│
-├── reporting-service/
-│   ├── server.js              # Express API for analytics queries
-│   ├── package.json           # Dependencies: express, mongoose, cors
-│   ├── .env                   # Config: PORT, MONGO_URI
-│   └── .env.example           # Template for environment variables
-│
-├── README.md                  # This file - Complete documentation
-└── .gitignore                 # Excludes node_modules, .env, logs
-```
-
----
-
-## 🎯 Core Requirements ✅
-
-| Requirement | Implementation | Status |
-|-------------|----------------|--------|
-| **Fast Ingestion** | Redis queue, non-blocking | ✅ Complete |
-| **Async Processing** | BullMQ worker with retries | ✅ Complete |
-| **POST /event** | Validates & queues events | ✅ Complete |
-| **Background Processor** | Saves events to MongoDB | ✅ Complete |
-| **GET /stats** | Aggregated analytics API | ✅ Complete |
-| **No DB wait on ingestion** | Returns before DB write | ✅ Complete |
-| **Aggregated data** | Returns summary, not raw events | ✅ Complete |
-
----
-
-## 📄 License
-
-This project is open source and available for educational and commercial use.
-
----
-
-## 👨‍💻 Author
-
-Built as a solution for high-performance analytics event ingestion and reporting.
-#   a n a l y t i c s - s y s t e m 
- 
- 
