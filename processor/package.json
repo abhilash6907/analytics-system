@@ -1,0 +1,27 @@
+{
+  "name": "processor",
+  "version": "1.0.0",
+  "description": "Background worker that processes events and saves to MongoDB",
+  "main": "worker.js",
+  "scripts": {
+    "start": "node worker.js",
+    "dev": "nodemon worker.js"
+  },
+  "keywords": [
+    "worker",
+    "analytics",
+    "mongodb",
+    "bullmq"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bullmq": "^5.63.1",
+    "dotenv": "^16.6.1",
+    "ioredis": "^5.8.2",
+    "mongoose": "^8.19.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
